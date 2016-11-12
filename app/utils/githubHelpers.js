@@ -3,14 +3,14 @@ import logCustomMessage from './logCustomMessage';
 
 const id = "";
 const sec = "";
-const param = "?client_id=" + id + "&client_secret=" + sec;
+const param = `?client_id=${id}&client_secret=${sec}`;
 
 function getUserInfo (username) {
-  return axios.get('https://api.github.com/users/' + username + param);
+  return axios.get(`https://api.github.com/users/${username + param}`);
 };
 
 function getRepos (username) {
-  return axios.get('https://api.github.com/users/' + username + '/repos' + param + '&per_page=100');
+  return axios.get(`https://api.github.com/users/${username}/repos${param}&per_page=100`);
 }
 
 function getTotalStars (repos) {
@@ -23,7 +23,7 @@ function getPlayersData (player) {
     .then((totalStars) => (
       {
         followers: player.followers,
-        totalStars: totalStars
+        totalStars
       }
     ));
 }
@@ -40,8 +40,8 @@ export function getPlayersInfo (players) {
     .then((info) => info.map((user) => user.data))
     .catch((error) => (
     logCustomMessage(error.response.statusText, {
-      players: players,
-      error: error
+      players,
+      error
     })
   ));
 };
@@ -55,7 +55,7 @@ export function battle (playersInfo) {
     .catch((error) => (
       logCustomMessage(error.response.statusText, {
         players: [playerOneData, playerTwoData],
-        error: error
+        error
       })
     ));
 };
