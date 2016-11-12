@@ -17,15 +17,18 @@ function getTotalStars (repos) {
   return repos.data.reduce((prev, current) => prev + current.stargazers_count, 0);
 }
 
-function getPlayersData (player) {
-  return getRepos(player.login)
-    .then(getTotalStars)
-    .then((totalStars) => (
-      {
-        followers: player.followers,
-        totalStars
-      }
-    ));
+async function getPlayersData (player) {
+  try {
+    const repos = await getRepos(player.login);
+    const totalStars = getTotalStars(repos);
+
+    return {
+      followers: player.followers,
+      totalStars
+    };
+  } catch (error) {
+    console.log('Error in githubHellpers getPlayersData:', error);
+  };
 }
 
 function calculateScores (players) {
@@ -35,27 +38,31 @@ function calculateScores (players) {
   ];
 }
 
-export function getPlayersInfo (players) {
-  return axios.all(players.map((username) => getUserInfo(username)))
-    .then((info) => info.map((user) => user.data))
-    .catch((error) => (
+export async function getPlayersInfo (players) {
+  try {
+    const info = await Promise.all(players.map((username) => getUserInfo(username)));
+    return info.map((user) => user.data);
+  } catch (error) {
     logCustomMessage(error.response.statusText, {
       players,
       error
     })
-  ));
+  };
 };
 
-export function battle (playersInfo) {
-  var playerOneData = getPlayersData(playersInfo[0]);
-  var playerTwoData = getPlayersData(playersInfo[1]);
+export async function battle (playersInfo) {
+  try {
+    const playerOneData = getPlayersData(playersInfo[0]);
+    const playerTwoData = getPlayersData(playersInfo[1]);
+    const data = await Promise.all([playerOneData, playerTwoData]);
+    return await calculateScores(data);
+  } catch (error) {
+    logCustomMessage(error.response.statusText, {
+      players: [playerOneData, playerTwoData],
+      error
+    });
+  };
 
   return axios.all([playerOneData, playerTwoData])
     .then(calculateScores)
-    .catch((error) => (
-      logCustomMessage(error.response.statusText, {
-        players: [playerOneData, playerTwoData],
-        error
-      })
-    ));
 };
