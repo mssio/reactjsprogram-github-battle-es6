@@ -1,17 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ConfirmBattle from '../components/ConfirmBattle';
 import { getPlayersInfo } from '../utils/githubHelpers';
 
-const ConfirmBattleContainer = React.createClass({
-  contextTypes: {
-    router: React.PropTypes.object.isRequired
-  },
-  getInitialState () {
-    return {
+class ConfirmBattleContainer extends Component {
+  constructor () {
+    super();
+    this.state = {
       isLoading: true,
       playersInfo: []
     };
-  },
+  }
+
   async componentDidMount () {
     const { query } = this.props.location;
 
@@ -24,7 +23,8 @@ const ConfirmBattleContainer = React.createClass({
     } catch (error) {
       console.warn('Error in ConfirmBattleContainer:', error);
     }
-  },
+  }
+
   handleInitiateBattle () {
     this.context.router.push({
       pathname: '/results',
@@ -32,16 +32,21 @@ const ConfirmBattleContainer = React.createClass({
         playersInfo: this.state.playersInfo
       }
     });
-  },
+  }
+
   render () {
     return (
       <ConfirmBattle
         isLoading={this.state.isLoading}
-        onInitiateBattle={this.handleInitiateBattle}
+        onInitiateBattle={() => this.handleInitiateBattle()}
         playersInfo={this.state.playersInfo}
       />
     );
   }
-});
+}
+
+ConfirmBattleContainer.contextTypes = {
+  router: React.PropTypes.object.isRequired
+};
 
 export default ConfirmBattleContainer;
